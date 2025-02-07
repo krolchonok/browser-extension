@@ -20,16 +20,16 @@ class Popup {
 
     // --- Quick Add (not for storage.managed)
     this.quickAdd = document.querySelector('select#quickAdd');
-    !pref.managed && this.quickAdd.addEventListener('change', (e) => {
+    !pref.managed && this.quickAdd.addEventListener('change', () => {
       if (!this.quickAdd.value) { return; }
 
       browser.runtime.sendMessage({id: 'quickAdd', pref, host: this.quickAdd.value, tab: this.tab});
       this.quickAdd.selectedIndex = 0;                      // reset select option
     });
 
-    // --- Tab Proxy (not for storage.managed, firefox only)
+    // --- Tab Proxy (firefox only)
     this.tabProxy = document.querySelector('select#tabProxy');
-    !pref.managed && App.firefox && this.tabProxy.addEventListener('change', () => {
+    App.firefox && this.tabProxy.addEventListener('change', () => {
       if (!this.tab) { return; }
 
       const proxy = this.tabProxy.value && this.proxyCache[this.tabProxy.selectedOptions[0].dataset.index];
@@ -47,12 +47,12 @@ class Popup {
     // --- store details open toggle
     const details = document.querySelector('details');
     details.open = localStorage.getItem('more') !== 'false';    // defaults to true
-    details.addEventListener('toggle', e => localStorage.setItem('more', details.open));
+    details.addEventListener('toggle', () => localStorage.setItem('more', details.open));
 
     this.process();
   }
 
-  static process() {
+  static async process() {
     const labelTemplate = document.querySelector('template').content.firstElementChild;
     const docFrag = document.createDocumentFragment();
 
@@ -64,33 +64,42 @@ class Popup {
 
     pref.mode === 'pattern' && (this.list.children[0].children[2].checked = true);
 
-    pref.data.filter(i => i.active).forEach(item => {
-      const id = item.type === 'pac' ? item.pac : `${item.hostname}:${item.port}`;
+    // :has() FF121 (2023-12-19), Ch105
+    this.supportCssHas = true;
+    if (App.firefox) {
+      const info = await browser.runtime.getBrowserInfo();
+      this.supportCssHas = parseInt(info.version) >= 121;
+    }
+
+    pref.data.filter(i => i.active).forEach(i => {
+      const id = i.type === 'pac' ? i.pac : `${i.hostname}:${i.port}`;
       const label = labelTemplate.cloneNode(true);
-      const [flag, title, portNo, radio, data] = label.children;
-      flag.textContent = App.showFlag(item);
-      title.textContent = item.title || id;
-      portNo.textContent = item.port;
-      radio.value = item.type === 'direct' ? 'direct' : id;
+      const [flag, title, port, radio, data] = label.children;
+      flag.textContent = App.showFlag(i);
+      title.textContent = i.title || i.hostname;
+      port.textContent = i.port;
+      radio.value = i.type === 'direct' ? 'direct' : id;
       radio.checked = id === pref.mode;
-      data.textContent = [item.city, ...Location.get(item.cc)].filter(Boolean).join('\n') || item.hostname;
+      data.textContent = [i.city, Location.get(i.cc)].filter(Boolean).join(', ') || ' ';
       docFrag.appendChild(label);
+
+      !this.supportCssHas && radio.checked && label.classList.add('selected');
     });
 
     this.list.appendChild(docFrag);
     this.list.addEventListener('click', e =>
       // fires twice (click & label -> input)
-      e.target.name === 'server' && this.processSelect(e.target.value)
+      e.target.name === 'server' && this.processSelect(e.target.value, e)
     );
 
     // --- Add Hosts to select
     // used to find proxy, filter out PAC, limit to 10
     this.proxyCache = pref.data.filter(i => i.active && i.type !== 'pac').filter((i, idx) => idx < 10);
 
-    this.proxyCache.forEach((item, index) => {
-      const flag = App.showFlag(item);
-      const value = `${item.hostname}:${item.port}`;
-      const opt = new Option(flag + ' ' + (item.title || value), value);
+    this.proxyCache.forEach((i, index) => {
+      const flag = App.showFlag(i);
+      const value = `${i.hostname}:${i.port}`;
+      const opt = new Option(flag + ' ' + (i.title || value), value);
       opt.dataset.index = index;
       // opt.style.color = item.color;                         // supported on Chrome, not on Firefox
       docFrag.appendChild(opt);
@@ -99,19 +108,21 @@ class Popup {
     this.quickAdd.appendChild(docFrag.cloneNode(true));
     this.tabProxy.appendChild(docFrag);
 
+    // get active tab
+    this.tab = (await browser.tabs.query({currentWindow: true, active: true}))[0];
+
+    // Check Tab proxy (Firefox only)
     App.firefox && this.checkTabProxy();
   }
 
   static async checkTabProxy() {
-    const [tab] = await browser.tabs.query({currentWindow: true, active: true});
-    if (!/https?:\/\/.+/.test(tab.url)) { return; }         // unacceptable URLs
+    if (!App.allowedTabProxy(this.tab.url)) { return; }     // unacceptable URLs
 
-    this.tab = tab;                                         // cache tab
-    const item = await browser.runtime.sendMessage({id: 'getTabProxy'});
+    const item = await browser.runtime.sendMessage({id: 'getTabProxy', tab: this.tab});
     item && (this.tabProxy.value = `${item.hostname}:${item.port}`);
   }
 
-  static processSelect(mode) {
+  static processSelect(mode, e) {
     if (mode === pref.mode) { return; }                     // disregard re-click
     if (pref.managed) { return; }                           // not for storage.managed
 
@@ -121,6 +132,12 @@ class Popup {
     pref.mode = mode;
     browser.storage.local.set({mode});                      // save mode
     browser.runtime.sendMessage({id: 'setProxy', pref, dark});
+
+    // :has() FF121 (2023-12-19), Ch105
+    if (!this.supportCssHas) {
+      [...this.list.children].forEach(i => i.classList.remove('selected'));
+      e.target.parentElement.classList.add('selected');
+    }
   }
 
   static processButtons(e) {
@@ -144,47 +161,23 @@ class Popup {
         window.close();
         break;
 
-      // case 'quickAdd':
-      //   if (!this.quickAdd.value) { break; }
-      //   if (pref.managed) { break; }                        // not for storage.managed
-
-      //   browser.runtime.sendMessage({id: 'quickAdd', pref, host: this.quickAdd.value});
-      //   this.quickAdd.selectedIndex = 0;                      // reset select option
-      //   break;
-
       case 'excludeHost':
         if (pref.managed) { break; }                        // not for storage.managed
 
         browser.runtime.sendMessage({id: 'excludeHost', pref, tab: this.tab});
         break;
-
-      // case 'setTabProxy':
-      //   if (!App.firefox || !this.tabProxy.value) { break; }  // firefox only
-      //   if (pref.managed) { break; }                        // not for storage.managed
-
-      //   this.tabId && browser.runtime.sendMessage({id: 'setTabProxy', proxy: this.proxyCache[this.tabProxy.value], tabId: this.tabId});
-      //   // this.tabProxy.selectedIndex = 0;                      // reset select option
-      //   break;
-
-      // case 'unsetTabProxy':
-      //   if (!App.firefox) { break; }                        // firefox only
-      //   if (pref.managed) { break; }                        // not for storage.managed
-
-      //   browser.runtime.sendMessage({id: 'unsetTabProxy'});
-      //   break;
     }
   }
 
   static filterProxy(e) {
     const str = e.target.value.toLowerCase().trim();
+    const elem = [...this.list.children].slice(2);          // not the first 2
     if (!str) {
-      [...this.list.children].forEach(i => i.classList.remove('off'));
+      elem.forEach(i => i.classList.remove('off'));
       return;
     }
 
-    [...this.list.children].forEach((item, idx) => {
-      if (idx < 2) { return; }                              // not the first 2
-
+    elem.forEach(item => {
       const title = item.children[1].textContent;
       const host = item.children[3].value;
       item.classList.toggle('off', ![title, host].some(i => i.toLowerCase().includes(str)));
@@ -201,10 +194,9 @@ class Popup {
       }
 
       const [ip, {cc, city}] = Object.entries(data)[0];
-      const text = [ip, , city, ...Location.get(cc)].filter(Boolean).join('\n');
+      const text = [ip, , city, Location.get(cc)].filter(Boolean).join('\n');
       App.notify(text);
     })
     .catch(error => App.notify(browser.i18n.getMessage('error') + '\n\n' + error.message));
   }
 }
-// ---------- /Popup ---------------------------------------

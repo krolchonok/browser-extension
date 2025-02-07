@@ -1,8 +1,8 @@
 # ![FoxyProxy](/src/image/icon.svg) FoxyProxy Browser Extension
 
 [![license](https://img.shields.io/github/license/foxyproxy/browser-extension.svg)](https://github.com/foxyproxy/browser-extension/blob/master/LICENSE)
-![GitHub repo size](https://img.shields.io/github/repo-size/foxyproxy/browser-extension?logo=github&logoColor=fff)
-![ECMAScript](https://img.shields.io/badge/ECMAScript-2022_(ES13)-blue?style=plastic&logo=javascript)
+[![GitHub repo size](https://img.shields.io/github/repo-size/foxyproxy/browser-extension?logo=github&logoColor=fff)](https://github.com/foxyproxy/browser-extension)
+[![ECMAScript](https://img.shields.io/badge/ECMAScript-2022_(ES13)-blue?style=plastic&logo=javascript)](https://262.ecma-international.org/13.0/index.html)
 
 
 
@@ -68,26 +68,28 @@ No remote code is used in this extension.
     <tr>
       <td>Standard</td>
       <td>
-        <a href="https://chromewebstore.google.com/detail/foxyproxy-standard/gcknhkkoolaabfmlnjonogaaifnjlfnp"><img src="https://img.shields.io/chrome-web-store/v/gcknhkkoolaabfmlnjonogaaifnjlfnp?logo=googlechrome&logoColor=fff&label=Chrome%20108%2B" alt=""></a><br>
+        <a href="https://chromewebstore.google.com/detail/foxyproxy-standard/gcknhkkoolaabfmlnjonogaaifnjlfnp"><img src="https://img.shields.io/chrome-web-store/v/gcknhkkoolaabfmlnjonogaaifnjlfnp?logo=googlechrome&logoColor=fff&label=Chrome" alt=""></a><br>
         <a href="https://chromewebstore.google.com/detail/foxyproxy-standard/gcknhkkoolaabfmlnjonogaaifnjlfnp"><img src="https://img.shields.io/chrome-web-store/users/gcknhkkoolaabfmlnjonogaaifnjlfnp" alt=""></a>
       </td>
       <td>
-        <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-standard/"><img src="https://img.shields.io/amo/v/foxyproxy-standard?logo=firefoxbrowser&logoColor=fff&label=Firefox%2093%2B" alt=""></a><br>
+        <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-standard/"><img src="https://img.shields.io/amo/v/foxyproxy-standard?logo=firefoxbrowser&logoColor=fff&label=Firefox" alt=""></a> <img src="/screenshots/recommended.png" width="100" alt=""><br>
         <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-standard/"><img src="https://img.shields.io/amo/users/foxyproxy-standard" alt=""></a>
         <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-standard/"><img src="https://img.shields.io/amo/dw/foxyproxy-standard" alt=""></a>
       </td>
       <td>
-      <a href="https://microsoftedge.microsoft.com/addons/detail/foxyproxy/flcnoalcefgkhkinjkffipfdhglnpnem"><img src="https://img.shields.io/badge/Edge%20108%2B-v8.9-blue?logo=microsoftedge" alt=""></a><br><br>
+       <a href="https://microsoftedge.microsoft.com/addons/detail/foxyproxy/flcnoalcefgkhkinjkffipfdhglnpnem"><img src="https://img.shields.io/badge/dynamic/json?label=Edge&prefix=v&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fflcnoalcefgkhkinjkffipfdhglnpnem" alt=""></a><br>
+       <a href="https://microsoftedge.microsoft.com/addons/detail/foxyproxy/flcnoalcefgkhkinjkffipfdhglnpnem"><img src="https://img.shields.io/badge/dynamic/json?label=users&query=%24.activeInstallCount&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fflcnoalcefgkhkinjkffipfdhglnpnem" alt=""></a>
+       <a href="https://microsoftedge.microsoft.com/addons/detail/foxyproxy/flcnoalcefgkhkinjkffipfdhglnpnem"><img src="https://img.shields.io/badge/dynamic/json?label=rating&suffix=/5&query=%24.averageRating&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2Faddons%2Fgetproductdetailsbycrxid%2Fflcnoalcefgkhkinjkffipfdhglnpnem" alt=""></a>
       </td>
     </tr>
     <tr>
       <td>Basic</td>
       <td>
-        <a href="https://chromewebstore.google.com/detail/foxyproxy-basic/dookpfaalaaappcdneeahomimbllocnb"><img src="https://img.shields.io/chrome-web-store/v/dookpfaalaaappcdneeahomimbllocnb?logo=googlechrome&logoColor=fff&label=Chrome%20108%2B" alt=""></a><br>
+        <a href="https://chromewebstore.google.com/detail/foxyproxy-basic/dookpfaalaaappcdneeahomimbllocnb"><img src="https://img.shields.io/chrome-web-store/v/dookpfaalaaappcdneeahomimbllocnb?logo=googlechrome&logoColor=fff&label=Chrome" alt=""></a><br>
         <a href="https://chromewebstore.google.com/detail/foxyproxy-basic/dookpfaalaaappcdneeahomimbllocnb"><img src="https://img.shields.io/chrome-web-store/users/dookpfaalaaappcdneeahomimbllocnb" alt=""></a>
       </td>
       <td>
-        <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-basic/"><img src="https://img.shields.io/amo/v/foxyproxy-basic?logo=firefoxbrowser&logoColor=fff&label=Firefox%2093%2B" alt=""></a><br>
+        <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-basic/"><img src="https://img.shields.io/amo/v/foxyproxy-basic?logo=firefoxbrowser&logoColor=fff&label=Firefox" alt=""></a><br>
         <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-basic/"></a><img src="https://img.shields.io/amo/users/foxyproxy-basic" alt="">
         <a href="https://addons.mozilla.org/firefox/addon/foxyproxy-basic/"></a><img src="https://img.shields.io/amo/dw/foxyproxy-basic" alt="">
       </td>
@@ -189,7 +191,8 @@ The target is built in `foxyproxy-XXX-YYY.zip`; e.g. `foxyproxy-chrome-standard.
 
 # FAQ
 
-## 💻 Settings disappeared after the upgrade to v8
+<details>
+  <summary>💻 Settings disappeared after the upgrade to v8</summary>
 
 Using Firefox and you've lost all FoxyProxy settings?
 
@@ -201,9 +204,10 @@ Due to a bug in version 8.2, previous settings of some users were not migrated a
 Versions 8.3-8.6 created with fixes for the bugs immediately, but due to the AMO approval waiting time, version 8.6 came online on Dec 12th.
 
 Previous settings were not deleted and are recoverable. The following options are available if FoxyProxy updated from 7.* and you have encountered the update bug.
+</details>
 
 <details>
-  <summary><b>Retrieve Settings and Keep version 8.2</b></summary>
+  <summary>Retrieve Settings and Keep version 8.2</summary>
 
 From [this comment](https://github.com/foxyproxy/browser-extension/issues/45#issuecomment-1838719332):
 
@@ -266,7 +270,7 @@ browser.storage.local.get().then(pref => {
 </details>
 
 <details>
-  <summary><b>Downgrade to 7.*</b></summary>
+  <summary>Downgrade to 7.*</summary>
 
 Downgrade may retrieve old settings.
 
@@ -283,12 +287,12 @@ Check [About](https://foxyproxy.github.io/browser-extension/src/content/about.ht
 
 
 
-## 📱 Firefox for Android
+### 📱 Firefox for Android
 
 Firefox for Android ignored disabling `extensions.update.enabled` (due to a [bug](https://bugzilla.mozilla.org/show_bug.cgi?id=1872169)). Therefore, installation of an older version from AMO will get updated. The bug is fixed in Firefox 123.
 
 <details>
-  <summary><b>Downgrade or Beta Installation</b></summary>
+  <summary>Downgrade or Beta Installation</summary>
 
 
 - Download 7.5.1 (or older) from https://addons.mozilla.org/firefox/addon/foxyproxy-standard/versions/

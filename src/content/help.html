@@ -306,14 +306,16 @@
     <h2 id="introduction">Introduction</h2>
 
     <p>First released in 2006, FoxyProxy is the original proxy switching tool, used by millions daily!<br>
-      To support this free software, please <a href="https://www.paypal.me/ericjung2/5.99" target="_blank">donate</a> or <a href="https://getfoxyproxy.org/order/" target="_blank">buy VPN/Proxy Servers</a> in over 100 countries (including such remote places as <a href="https://wikipedia.org/wiki/Réunion" target="_blank">Reunion Island</a>).
+      To support this free software, please please donate (<a href="https://buy.stripe.com/00gcNd1YQ2NQbKM148" target="_blank">Stripe</a>, <a href="https://www.paypal.me/ericjung2/5.99" target="_blank">PayPal</a>) or
+      <a href="https://getfoxyproxy.org/order/" target="_blank">buy dedicated VPN/Proxy Servers</a> in over 100 countries.<br>
+      <i>(including such remote places like <a href="https://wikipedia.org/wiki/Réunion" target="_blank">Reunion Island</a>)</i>
     </p>
 
-    <p>If you upgraded from a previous version, and your proxy settings are missing, please import them.</p>
+    <p>If you have upgraded from a previous version, and your proxy settings are missing, please import them.</p>
 
 
     <h3>Unified Code</h3>
-    <p>FoxyProxy 8.* code has been unified for Chrome & Firefox, and Standard & Basic versions.</p>
+    <p>FoxyProxy 8 code has been unified for Chrome & Firefox, and Standard & Basic versions.</p>
     <p>Users can import/export settings between all above mentioned.</p>
     <p class="warning">FoxyProxy uses user-agent to identify browser-specific code and altering the user-agent at browser level (not webpage level) can interfere with its operation.</p>
 
@@ -334,7 +336,6 @@
       <dd>How to: <a href="https://support.mozilla.org/kb/extensions-private-browsing#w_enabling-or-disabling-extensions-in-private-windows" target="_blank">Enabling or disabling extensions in private windows</a></dd>
 
     </dl>
-
 
     <h3>Non-Destructive Editing</h3>
     <p>Editing & importing are non-destructive. <b>Save</b> must be clicked to apply changes.</p>
@@ -406,6 +407,7 @@
 
       <dt>Individual Proxy</dt>
       <dd>Connections are passed through the selected proxy (or PAC)</dd>
+      <dd>Patterns are not applicable in this case</dd>
 
       <dt>▶ More</dt>
       <dd>Show or hide additional options</dd>
@@ -413,33 +415,33 @@
 
       <dt>Search Filter</dt>
       <dd>Proxy <i>Title</i>, <i>Hostname</i>, & <i>Port</i> are searched and display filtered based on the input value (case-insensitive)</dd>
-      <dd>Use <i>:port</i> to filter by port</dd>
+      <dd>Use <code>:port-number</code> to filter by port</dd>
+
+      <dt>Exclude Host</dt>
+      <dd>Add host (with its protocol) to the Global Exclude</dd>
 
       <dt>Quick Add</dt>
       <dd>Add current page's host pattern to the selected proxy's include</dd>
       <dd>Only top 10 active proxies are listed</dd>
 
-      <dt>Exclude Host</dt>
-      <dd>Add host (with its protocol) to the Global Exclude</dd>
-
-      <dt>Set Tab Proxy <span>(Firefox only)</span></dt>
+      <dt>Tab Proxy <span>(Firefox only)</span></dt>
       <dd>Select a proxy from the drop-down list for the current tab</dd>
-      <dd>Click button to set</dd>
+      <dd>Select the blank option to unset</dd>
       <dd>Tab Proxy is processed before normal proxy settings</dd>
       <dd>Only top 10 active proxies are listed</dd>
       <dd>Toolbar badge shows the proxy and mouse-over title displays the selection details</dd>
 
-      <dt>Unset Tab Proxy <span>(Firefox only)</span></dt>
-      <dd>Unset proxy for the current tab</dd>
-
       <dt>Options</dt>
       <dd>Open the Options page</dd>
+
+      <dt>Location</dt>
+      <dd>Open FoxyProxy site in a new tab to show location as well as any WebRTC leaks</dd>
 
       <dt>IP</dt>
       <dd>Get IP from FoxyProxy servers</dd>
 
-      <dt>Location</dt>
-      <dd>Open FoxyProxy site in a new tab to show location as well as any WebRTC leaks</dd>
+      <dt>Log</dt>
+      <dd>Open the Options page, Log Tab</dd>
     </dl>
 
 
@@ -467,10 +469,10 @@
 
     <h3 id="enable-storage-sync">Enable Storage Sync</h3>
     <p>Enable to sync storage if it is under 100KB. If the storage is over 100KB, there will be a notification and the Sync will be turned off automatically to avoid repeated errors.</p>
-    <p><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a> is not supported on Firefox for Android.</p>
+
     <ul>
       <li>Sync is disabled on managed storage</li>
-      <li>At the moment, Firefox does not support sync to Firefox on Android</li>
+      <li>At the moment, <a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/storage/sync" target="_blank">storage.sync</a> is not supported on Firefox for Android</li>
       <li>Mode & Sync option is not synced to give users choice on different machines</li>
     </ul>
 
@@ -521,11 +523,14 @@
     <p>Set a proxy for Incognito (Private Mode) and/or Containers</p>
     <p>Incognito proxy behaviour is slightly different in Chrome and Firefox.</p>
 
+
     <ul>
       <li>Only active proxies are listed</li>
       <li>Set proxy will clear if it is deleted or deactivated</li>
       <li>Patterns are not applicable in incognito/container settings</li>
       <li>Incognito/Container are processed independently, therefore they function even with normal operation set to "Disable"</li>
+      <li>Click "Add" for a new custom container option</li>
+      <li>Custom containers without a proxy will be deleted</li>
     </ul>
 
     <dl class="plain">
@@ -536,6 +541,7 @@
       <dt>Firefox</dt>
       <dd>Incognito/Container are processed before standard proxy settings (and after Tab Proxy)</dd>
       <dd>Generic names are used for containers since getting their details requires "contextualIdentities" permissions which would enable containers automatically for the user <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1386673" title="Make Contextual Identity extensions be an optional permission" target="_blank">ⓘ</a></dd>
+      <dd>The numbers corresponds to container IDs and not their order. If containers are not deleted or reordered, IDs should match the order. Otherwise, user should get the correct ID (e.g. from <code>containers.json</code>).</dd>
 
     </dl>
 
@@ -677,12 +683,12 @@
   Connections to localhost, 127.0.0.1/8, and ::1 are never proxied.
 -->
     <h5>See also</h5>
-    <ul>
+    <ul style="columns: 2;">
       <li><a href="https://developer.chrome.com/docs/extensions/reference/proxy/#bypass-list" target="_blank">Chrome Bypass list</a></li>
       <li><a href="https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md#Proxy-bypass-rules" target="_blank">Proxy bypass rules</a></li>
       <li><a href="https://chromium.googlesource.com/chromium/src/+/HEAD/net/docs/proxy.md#Implicit-bypass-rules" target="_blank">Implicit bypass rules</a></li>
 
-      <li style="margin-top: 1em;"><a href="https://www-archive.mozilla.org/quality/networking/docs/aboutno_proxy_for" target="_blank">No Proxy for</a></li>
+      <li><a href="https://www-archive.mozilla.org/quality/networking/docs/aboutno_proxy_for" target="_blank">No Proxy for</a></li>
       <li><a href="https://support.mozilla.org/kb/connection-settings-firefox" target="_blank">Connection settings in Firefox</a></li>
       <li><a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/API/proxy/settings" target="_blank">Firefox passthrough</a></li>
 
@@ -724,7 +730,7 @@
 127.0.0.1:9050c
 </pre>
 
-    <p class="warning">The augmented port method is only only available for SOCKS & HTTPS (not HTTP, due to the limitation of the Firefox API). <br>
+    <p class="warning">The augmented port method is only only available for SOCKS & HTTPS (for Firefox &lt; 125, due to the limitation of the Firefox API) and HTTP (for Firefox &gt;= 125). <br>
     For Unix Domain Sockets, where port is ignored, only numbers should be used.</p>
 
     <p>Another solution is to prepend hostnames where possible e.g. <code>&lt;sometext&gt;.localhost</code> since they all resolve to <code>127.0.0.1</code> internally.</p>
@@ -988,7 +994,7 @@
 
 
 
-    <h3>Pattern Guide</h3>
+    <h3 id="pattern-guide">Pattern Guide</h3>
 
     <ul>
       <li>Patterns can be Wildcard (<a href="https://developer.mozilla.org/docs/Mozilla/Add-ons/WebExtensions/manifest.json/content_scripts#globs" target="_blank">globs</a>) or <a href="https://developer.mozilla.org/docs/Web/JavaScript/Guide/Regular_expressions" target="_blank">Regular Expression</a></li>
@@ -1051,7 +1057,7 @@
 
         <tr>
           <th>Wildcard</th>
-          <td>://*.example.com<br>*://*.example.com</td>
+          <td>://*.example.com/<br>*://*.example.com/</td>
           <td>http://help.example.com/<br>https://help.example.com/</td>
           <td>https://example.com/<br>https://google.com/ref=help.example.com</td>
         </tr>
@@ -1325,7 +1331,7 @@ http://pac-url.com/etc?type=pac&title=Work PAC&color=663300</pre>
             ◦ <a href="https://chromium.googlesource.com/chromium/src/+/HEAD/docs/enterprise/policies.md" target="_blank">Enterprise policies</a>
           </td>
           <td>
-            ◦ <a href="https://extensionworkshop.com/documentation/enterprise/adding-policy-support-to-your-extension/" target="_blank">How to add policy support</a><br>
+            ◦ <a href="https://extensionworkshop.com/documentation/enterprise/enterprise-development/#how-to-add-policy" target="_blank">How to add policy support</a><br>
             ◦ <a href="https://mozilla.github.io/policy-templates/" target="_blank">policy-templates</a>
           </td>
         </tr>

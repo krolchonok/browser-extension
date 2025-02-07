@@ -3,16 +3,16 @@
 // Once implemented, module will be dynamically imported for Firefox only
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1853203
-// Support non-ASCII username/password for socks proxy
-// Fixed in Firefox 119
+// Support non-ASCII username/password for socks proxy (fixed in Firefox 119)
 
+// proxyAuthorizationHeader on Firefox only applied to HTTPS (not HTTP and HTTP broke the API and sent DIRECT)
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1794464
-// Allow HTTP authentication in proxy.onRequest
-// Fixed in Firefox 125
+// Allow HTTP authentication in proxy.onRequest (fixed in Firefox 125)
 
 // https://bugzilla.mozilla.org/show_bug.cgi?id=1741375
-// Proxy DNS by default when using SOCKS v5
-// Firefox 128: defaults to true for SOCKS5 & false for SOCKS4
+// Proxy DNS by default when using SOCKS v5 (fixed in Firefox 128, defaults to true for SOCKS5 & false for SOCKS4)
+// https://bugzilla.mozilla.org/show_bug.cgi?id=1893670
+// Proxy DNS by default for SOCK4 proxies. Defaulting to SOCKS4a
 
 import {App} from './app.js';
 import {Pattern} from './pattern.js';
@@ -30,10 +30,10 @@ export class OnRequest {
     this.net = [];                                          // [start, end] strings
     this.tabProxy = {};                                     // tab proxy, may be lost in MV3 if bg is unloaded
     this.container = {};                                    // incognito/container proxy
-    this.browserVersion = 0;                                // used HTTP authentication
+    this.browserVersion = 0;                                // used for HTTP authentication
 
     // --- Firefox only
-    if (browser?.proxy?.onRequest) {
+    if (browser.proxy.onRequest) {
       browser.proxy.onRequest.addListener(e => this.process(e), {urls: ['<all_urls>']});
       // check Tab for tab proxy
       browser.tabs.onUpdated.addListener((...e) => this.onUpdated(...e));
@@ -124,7 +124,6 @@ export class OnRequest {
 
     for (const proxy of this.data) {
       if (!match(proxy.exclude) && match(proxy.include)) {
-        // this.processShowPatternProxy(proxy, tabId);
         return this.processProxy(proxy, tabId);
       }
     }
@@ -138,30 +137,34 @@ export class OnRequest {
     const {type, hostname: host, port, username, password, proxyDNS} = proxy || {};
     if (!type || type === 'direct') { return {type: 'direct'}; }
 
-    // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#102
-    // Although API converts to number -> let port = Number.parseInt(proxyData.port, 10);
-    // port 'number', prepare for augmented port
-    const response = {type, host, port: parseInt(port)};
+    const up = username && password;
+    const auth = up && (type === 'https' || (type === 'http' && this.browserVersion >= 125));
 
-    // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#43
-    // API uses socks for socks5
-    response.type === 'socks5' && (response.type = 'socks');
+    const response = {
+      host,
 
-    // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#135
-    type.startsWith('socks') && (response.proxyDNS = !!proxyDNS);
+      // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#102
+      // Although API converts to number -> let port = Number.parseInt(proxyData.port, 10);
+      // port 'number', prepare for augmented port
+      port: parseInt(port),
 
-    if (username && password) {
-      response.username = username;
-      response.password = password;
-      // https://bugzilla.mozilla.org/show_bug.cgi?id=1794464
-      // Allow HTTP authentication in proxy.onRequest
+      // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#43
+      // API uses socks for socks5
+      type: type === 'socks5' ? 'socks' : type,
+
+      // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#135
+      ...(type.startsWith('socks') && {proxyDNS: !!proxyDNS}),
+
+      // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#117
+      ...(up && {username}),
+
+      // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#126
+      ...(up && {password}),
+
       // https://searchfox.org/mozilla-central/source/toolkit/components/extensions/ProxyChannelFilter.sys.mjs#167
-      // proxyAuthorizationHeader on Firefox only applies to HTTPS (not HTTP and it breaks the API and sends DIRECT)
       // proxyAuthorizationHeader added to reduce the authentication request in webRequest.onAuthRequired
-      // HTTP authentication fixed in Firefox 125
-      (type === 'https' || this.browserVersion >= 125) &&
-        (response.proxyAuthorizationHeader = 'Basic ' + btoa(proxy.username + ':' + proxy.password));
-    }
+      ...(auth && {proxyAuthorizationHeader: 'Basic ' + btoa(proxy.username + ':' + proxy.password)}),
+    };
 
     return response;
   }
@@ -178,7 +181,7 @@ export class OnRequest {
     // --- set proxy details
     if (item) {
       const host = [item.hostname, item.port].filter(Boolean).join(':');
-      title = [item.title, host, item.city, ...Location.get(item.cc)].filter(Boolean).join('\n');
+      title = [item.title, host, item.city, Location.get(item.cc)].filter(Boolean).join('\n');
       text = item.title || item.hostname;
       color = item.color;
     }
@@ -191,7 +194,7 @@ export class OnRequest {
   // ---------- passthrough --------------------------------
   static bypass(url) {
     switch (true) {
-      // case this.localhost(url):                             // localhost passthrough
+      case this.defaultLocal(url):                          // default localhost passthrough
       case this.passthrough.some(i => new RegExp(i, 'i').test(url)): // global passthrough
       case this.net[0] && this.isInNet(url):                // global passthrough CIDR
         return true;
@@ -205,9 +208,9 @@ export class OnRequest {
   // Connections to localhost, 127.0.0.1/8, and ::1 are never proxied.
   // proxy.onRequest only applies to http/https/ws/wss
   // it can't catch a domain set by user to 127.0.0.1 in the hosts file
-  static localhost(url) {
-    const [, host] = url.split(/:\/\/|\//, 2);              // hostname with/without port
-    return App.isLocal(host);
+  static defaultLocal(url) {
+    const {hostname} = new URL(url);
+    return ['localhost', '127.0.0.1', '[::1]'].includes(hostname);
   }
 
   static isInNet(url) {
@@ -223,7 +226,7 @@ export class OnRequest {
   static setTabProxy(tab, pxy) {
     // const [tab] = await browser.tabs.query({currentWindow: true, active: true});
     switch (true) {
-      case !/https?:\/\/.+/.test(tab.url):                  // unacceptable URLs
+      case !App.allowedTabProxy(tab.url):                   // unacceptable URLs
       case this.bypass(tab.url):                            // check local & global passthrough
         return;
     }
@@ -232,12 +235,6 @@ export class OnRequest {
     pxy ? this.tabProxy[tab.id] = pxy : delete this.tabProxy[tab.id];
     this.setAction(tab.id, pxy);
   }
-
-  // static async unsetTabProxy() {
-  //   const [tab] = await browser.tabs.query({currentWindow: true, active: true});
-  //   delete this.tabProxy[tab.id];
-  //   // PageAction.unset(tab.id);
-  // }
 
   // ---------- Update Page Action -------------------------
   static onUpdated(tabId, changeInfo, tab) {
